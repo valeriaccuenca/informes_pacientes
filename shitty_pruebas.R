@@ -2,12 +2,11 @@
 
 library(tidyverse)
 library(dplyr)
-library(gtsummary)
 library(stats)
 library(kableExtra)
 library(knitr)
 
-setwd("C:/Users/Usuario/OneDrive - Universidad de Alcala/Proyectos/FIS - Parques y AF/Informes_pacientes/Pruebas")
+
 load("dta_pacientes.RData")
 
 dta_pacientes <-dta_pacientes %>% 
@@ -56,20 +55,22 @@ tab_2
 
 #ggplot con los tipos de actividad por día
 library(ggplot2)
-# library(tidyr)
 library(reshape2)
 
 
 dta_long <- dta_pacientes %>% 
   filter(subject=="d_34") %>%
-  select(dia, sedentary, light, moderate, vigorous, veryvigorous) %>% 
-  melt(dta_pacientes, id.vars=c("subject", "dia"),
+  select(day_n, dia, sedentary, light, moderate, vigorous, veryvigorous) %>% 
+  melt(dta_pacientes, id.vars=c("subject", "day_n", "dia"),
          measure.vars=c("light", "moderate", "vigorous", "veryvigorous"),
          variable.name="type_pa",
          value.name="minutes")
+dta_long
 
-ggplot(dta_long, aes(x = dia, y = minutes, fill = type_pa)) +
-  geom_col(position = position_dodge()) 
+plot_1 <- ggplot(dta_long, aes(x = reorder(dia, day_n), y = minutes, fill = type_pa)) +
+  geom_col(position = position_dodge2()) +
+  theme_minimal()
+plot_1
 
 
 # melt(dta_,
