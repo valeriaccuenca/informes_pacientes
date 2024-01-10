@@ -2,20 +2,26 @@
 title: "Informe de Actividad Física"
 output: 
 pdf_document:
-  toc: true
-  toc_depth: 2
-  toc_float: true
-date: "2023-11-30"
 ---
+Este documento incluye un resumen de los resultados de tu participación en el subestudio sobre actividad física y geolocalización del proyecto Heart Healthy Hoods (Barrios Cardiosaludables). Te queremos agradecer tu participación y darte unas recomendaciones sobre actividad física para poder mejorar tu salud y protegerte de enfermedades cardiovasculares.
 
 ```{r setup, include=FALSE}
 library(tidyverse)
 library(dplyr)
 library(kableExtra)
 library(knitr)
-knitr::opts_chunk$set(echo = TRUE)
+library(markdown)
+knitr::opts_chunk$set(echo = F)
 ```
+La Organización Mundial de la Salud (OMS) recomienda realizar distintos niveles de actividad física según los diferentes grupos de edad. Para población adulta, las recomendaciones son las siguientes:
 
+* Al menos 150 a 300 minutos de actividad física moderada a la semana.
+* 75 a 150 minutos de actividad vigorosa, o una combinación de actividad moderada a vigorosa para obtener beneficios para la salud.
+* Actividades de fortalecimiento muscular durante dos o más días a la semana.
+* Limitar el tiempo de actividades sedentarias, priorizando las de cualquier intensidad, incluyendo las de baja intensidad.
+
+
+A continuación, te presentamos los resultados de los datos recogidos durante tu participación en el estudio.
 ```{r, echo=F}
 setwd("C:/Users/Usuario/OneDrive - Universidad de Alcala/Proyectos/FIS - Parques y AF/Informes_pacientes/Pruebas")
 load("dta_pacientes.RData")
@@ -32,13 +38,12 @@ dta_pacientes <-dta_pacientes %>%
   group_by(subject)
 ```
 
-## Resumen actividad física semanal
+## Resumen actividad física semanal (minutos)
 
-You can also embed plots, for example:
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, message=FALSE}
 tab_1 <-  dta_pacientes %>%
-  filter(subject=="d_34") %>%
+  filter(subject=="d_3") %>%
   select(dia, sedentary, light, moderate, vigorous, veryvigorous, MVPA, total_pas, total_activity_day) %>%
   summarise(
     Total_sedentaria = sum(sedentary),
@@ -49,19 +54,25 @@ tab_1 <-  dta_pacientes %>%
     Total_MVPA = sum(MVPA),
     Total_PA = sum(total_pas),
     Total_Ac = sum(total_activity_day)) %>% 
-  rename('Sedentaria'= Total_sedentaria, 'Ligera'= Total_ligera,'Moderada'= Total_moderada, 
-       'Vigorosa'= Total_vigorosa, 'Muy vigorosa'= Total_muyvigorosa, "Actividad moderada a vigorosa" = Total_MVPA, 
-       "Actividad física total" = Total_PA, "Actividad total registrada"= Total_Ac) %>% 
+  rename('Sedentaria'= Total_sedentaria, 
+         'Ligera'= Total_ligera,
+         'Moderada'= Total_moderada,
+         'Vigorosa'= Total_vigorosa, 
+         'Muy vigorosa'= Total_muyvigorosa, 
+         "Actividad moderada a vigorosa" = Total_MVPA, 
+         "Actividad física total" = Total_PA, 
+         "Actividad total registrada"= Total_Ac) %>% 
   kbl(format = ,align = "c") %>% 
   kable_styling() %>% 
   remove_column(columns = 1)
 tab_1
 ```
 
-## Actividad física diaria
-```{r, echo=F}
+## Actividad física diaria (minutos)
+
+```{r, echo=F, message=F}
 tab_2 <-  dta_pacientes %>%
-  filter(subject=="d_34") %>%
+  filter(subject=="d_3") %>%
   select(dia, sedentary, light, moderate, vigorous, veryvigorous, MVPA, total_pas, total_activity_day) %>%
   rename('Día de la semana' = dia, 'Sedentaria'= sedentary, 'Ligera'= light,'Moderada'= moderate, 
          'Vigorosa'= vigorous, 'Muy vigorosa'= veryvigorous, "Actividad moderada a vigorosa" = MVPA, 
@@ -74,21 +85,23 @@ tab_2
 ```
 
 ## Gráfico de tipo de actividad física diaria
-```{r, echo=F}
-library(ggplot2)
+
+```{r, echo=F, message=F}
 library(reshape2)
 
 
 dta_long <- dta_pacientes %>% 
-  filter(subject=="d_34") %>%
-  select(dia, sedentary, light, moderate, vigorous, veryvigorous) %>% 
-  melt(dta_pacientes, id.vars=c("subject", "dia"),
+  filter(subject=="d_3") %>%
+  select(day_n, dia, sedentary, light, moderate, vigorous, veryvigorous) %>% 
+  melt(dta_pacientes, id.vars=c("subject", "dia", "day_n"),
          measure.vars=c("light", "moderate", "vigorous", "veryvigorous"),
          variable.name="type_pa",
          value.name="minutes")
 
-ggplot(dta_long, aes(x = dia, y = minutes, fill = type_pa)) +
+ggplot(dta_long, aes(x = reorder(dia, day_n), y = minutes, fill = type_pa)) +
+  labs(x="Día de la semana", y="Minutos de actividad") +
+  scale_fill_discrete(name = "Tipo de actividad física",
+                      labels = c("Ligera", "Moderada", "Vigorosa", "Muy vigorosa"))+
   geom_col(position = position_dodge()) 
 
 ```
-

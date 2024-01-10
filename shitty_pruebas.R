@@ -69,6 +69,9 @@ dta_long
 
 plot_1 <- ggplot(dta_long, aes(x = reorder(dia, day_n), y = minutes, fill = type_pa)) +
   geom_col(position = position_dodge2()) +
+  labs(x="Día de la semana", y="Minutos de actividad") +
+  scale_fill_discrete(name = "Tipo de actividad física",
+                      labels = c("Ligera", "Moderada", "Vigorosa", "Muy vigorosa"))+
   theme_minimal()
 plot_1
 
